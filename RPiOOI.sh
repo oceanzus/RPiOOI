@@ -7,6 +7,9 @@ sudo apt-get -y update
 echo "Searching for upgrades..."
 sudo apt-get -y upgrade
 
+echo "Installing pandas..."
+pip3 install pandas
+
 echo "Installing xarray..."
 pip3 install xarray
 
@@ -15,9 +18,6 @@ pip3 install numpy
 
 echo "Installing matplotlib..."
 pip3 install matplotlib
-
-echo "Installing pandas..."
-pip3 install pandas
 
 echo "Installing datetime..."
 pip3 install datetime
