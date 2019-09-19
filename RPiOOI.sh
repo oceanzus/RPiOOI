@@ -1,3 +1,5 @@
+cd /home/pi/
+
 echo "Beginning installation..."
 sleep 1s
 
