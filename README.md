@@ -2,8 +2,7 @@
 This repository provides examples for how to plot and update telemetered and streamed data from OOI platforms.
 These examples do not save data on your local machine, but instead plot data from memory.
 
-These examples were written for use on a Raspberry Pi, the idea being that you could display and update near real-time data for viewing.
-They can easily be modified for use on other machines. These scripts are based in Python 3.
+These examples were written for use on a Raspberry Pi. The idea being that you could display and update near real-time data for viewing or decision-making. They can easily be modified for use on other machines. These scripts are based in Python 3.
 
 ##Setting Up The Pi
 
