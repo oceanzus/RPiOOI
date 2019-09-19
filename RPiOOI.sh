@@ -41,7 +41,7 @@ echo "Searching for upgrades..."
 sudo apt-get -y upgrade
 
 echo "Setting up executables..."
-cd RPiOOI
+cd /home/pi/RPiOOI
 chmod +x CE01ISSM_MFN_TSDO.py
 sleep 1s
 chmod +x CE02SHBP_BEP_TSDO.py
