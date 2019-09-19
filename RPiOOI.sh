@@ -13,13 +13,13 @@ echo "Installing pandas..."
 sudo apt-get install -y python3-pandas
 
 echo "Installing xarray..."
-sudo apt-get install -y python3-xarray
+pip3 install xarray
 
 echo "Installing numpy..."
 sudo apt-get install -y python3-numpy
 
 echo "Installing matplotlib..."
-sudo apt-get install -y python3-matplotlib
+pip3 install matplotlib
 
 echo "Installing datetime..."
 pip3 install datetime
