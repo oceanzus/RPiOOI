@@ -19,7 +19,7 @@ echo "Installing numpy..."
 sudo apt-get install -y python3-numpy
 
 echo "Installing matplotlib..."
-pip3 install matplotlib
+sudo apt-get install -y python3-matplotlib
 
 echo "Installing datetime..."
 pip3 install datetime
