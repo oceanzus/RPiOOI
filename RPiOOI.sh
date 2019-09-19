@@ -16,7 +16,7 @@ echo "Installing xarray..."
 pip3 install xarray
 
 echo "Installing numpy..."
-sudo apt-get install -y python3-numpy
+pip3 install numpy
 
 echo "Installing matplotlib..."
 sudo apt-get install -y python3-matplotlib
