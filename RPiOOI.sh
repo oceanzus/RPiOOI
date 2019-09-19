@@ -30,20 +30,20 @@ pip3 install requests
 echo "Installing netCDF4..."
 pip3 install netCDF4
 
-"Do you want to install xscreensaver?"
+echo "Do you want to install xscreensaver?"
 select yn in "Y" "N"; do
   case $yn in
       Y ) sudo apt-get install -y xscreensaver; break;;
-      N ) exit;;
+      N ) break;;
   esac
 done
 
 
-"Do you want to install unclutter?"
+echo "Do you want to install unclutter?"
 select yn in "Y" "N"; do
   case $yn in
       Y ) sudo apt-get install -y unclutter; break;;
-      N ) exit;;
+      N ) break;;
   esac
 done
 
