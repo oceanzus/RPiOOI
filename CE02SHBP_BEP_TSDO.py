@@ -24,12 +24,15 @@ register_matplotlib_converters()
 #--------------------------------------------------#
 user = 'OOIAPI-BCJPAYP2KUVXFX'  #OOI API username.
 token = 'D3HV2X0XH1O'   #OOI API token.
+
 backcast = 60 * 24   #Number of minutes to initially display.
-interval = 15   #Frequency in minutes to request new data.
+interval = 5   #Frequency in minutes to request new data.
 buffer = 5     #Number of minutes to add to the interval to account for the time it takes to make the request.
-limit = 60 * 2  #Number of minutes of data to store in memory.
+limit = backcast * 1  #Number of minutes of data to store in memory.
+
 pad = 5  #Padding for plt.tight_layout()
 windowtitle = 'T, S, DO near bottom @ 44.637 N, -124.306 E'  #Super title of your figure.
+
 partial_url = 'https://ooinet.oceanobservatories.org/api/m2m/12576/sensor/inv/CE02SHBP/LJ01D/06-CTDBPN106/streamed/ctdbp_no_sample'  #Partial URL (no times) of data request.
 vartime = 'time'  #The OOI stream name of the time associated with the data you want.
 var1 = 'seawater_temperature'  #The OOI stream name of one of the variables you want to plot on the y axis.
@@ -148,7 +151,6 @@ class OOI():
         var3 = df.loc[trim]
 
         vartime = np.array(vartime[0]) #Really make sure everything is an array.
-        vartime = pd.to_datetime(vartime,format='%Y%m%d %H:%M:%S', errors='coerce',utc = True)
         var1 = np.array(var1[0])
         var2 = np.array(var2[0])
         var3 = np.array(var3[0])

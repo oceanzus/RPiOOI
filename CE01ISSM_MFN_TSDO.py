@@ -24,8 +24,8 @@ register_matplotlib_converters()
 user = 'OOIAPI-BCJPAYP2KUVXFX'  #OOI API username.
 token = 'D3HV2X0XH1O'   #OOI API token.
 
-backcast = 60 * 24 * 14   #Number of minutes to initially display.
-interval = 5  #Frequency in minutes to request new data.
+backcast = 60 * 24   #Number of minutes to initially display.
+interval =  60 * 8 #Frequency in minutes to request new data.
 buffer = 5     #Number of minutes to add to the interval to account for the time it takes to make the request.
 limit = backcast * 1  #Number of minutes of data to store in memory. Should be greater or equal to the backcast time. Effectively becomes the x-axis limit.
 

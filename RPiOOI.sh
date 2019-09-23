@@ -28,6 +28,11 @@ echo "Installing requests..."
 pip3 install requests
 
 echo "Installing netCDF4..."
+sudo apt-get install -y libhdf5-dev
+sudo apt-get install -y netcdf-bin
+sudo apt-get install libnetcdf-dev
+pip3 install Cython
+pip3 install h5py
 pip3 install netCDF4
 
 echo "Do you want to install xscreensaver?"
@@ -63,7 +68,7 @@ chmod +x CE02SHBP_BEP_TSDO.py
 sleep 1s
 chmod +x CE09OSPM_MMP_TS.py
 sleep 1s
-chmod +x CE04OSPM_MMP_TS.py
+chmod +x CP04OSPM_MMP_TS.py
 sleep 1s
 
 echo "Installation complete!"

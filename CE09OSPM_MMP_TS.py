@@ -56,7 +56,7 @@ class OOI():
         self.var2 = []
         self.var3 = []
              
-    def create_url(self,interval,buffer,partial_url): #Use the user set interval, buffer, and partial_url to create a M2M request URL.
+    def create_url(self,interval,buffer, partial_url): #Use the user set interval, buffer, and partial_url to create a M2M request URL.
         print('Generating M2M URL...')
         now = datetime.utcnow()    #Get the current time in UTC.
         past = now - timedelta(minutes=interval+buffer)     #Calculate what the time would be given the interval and buffer.
