@@ -2,9 +2,11 @@
 
 #Tested in Python 3.7.3 on a Raspberry Pi Model 3B+.
 #Tested in Python 3.7.4 in Windows 10.
-#This script plots OOI CE01ISSM MFN (Multi-Function Node) CTD and oxygen data at 8 hour intervals.
-#It is intended to work with a Raspberry Pi, but has also been tested in Python 3 for Windows.
-#Created by iblack with help from spearce, crisien, and cwingard.
+
+#This script plots OOI CE01ISSM MFN (Multi-Function Node) CTD and oxygen data.
+#It will initially plot the previous 14 days and then will request new data every 8 hours.
+
+#Created by iblack (blackia@oregonstate.edu) with help from spearce, crisien, and cwingard.
 #Some sections pulled from OOI M2M examples written by Friedrich Knuth and Sage.
 
 import os , sys, time , string , math , requests , re , tkinter , matplotlib
@@ -16,23 +18,28 @@ from datetime import datetime , timedelta
 from pandas.plotting import register_matplotlib_converters
 register_matplotlib_converters()
 
+
+
 #--------------------------------------------------#
 user = 'OOIAPI-BCJPAYP2KUVXFX'  #OOI API username.
 token = 'D3HV2X0XH1O'   #OOI API token.
+
 backcast = 60 * 24 * 14   #Number of minutes to initially display.
-interval = 60 * 8   #Frequency in minutes to request new data.
+interval = 5  #Frequency in minutes to request new data.
 buffer = 5     #Number of minutes to add to the interval to account for the time it takes to make the request.
-limit = backcast * 1 #Number of minutes of data to store in memory. Should be greater or equal to the backcast time.
+limit = backcast * 1  #Number of minutes of data to store in memory. Should be greater or equal to the backcast time. Effectively becomes the x-axis limit.
+
 pad = 5  #Padding for plt.tight_layout()
-windowtitle = 'T,S,DO near bottom @ 44.66 N, -124.095 E'
-partial_url_1 = 'https://ooinet.oceanobservatories.org/api/m2m/12576/sensor/inv/CE01ISSM/MFD37/03-CTDBPC000/telemetered/ctdbp_cdef_dcl_instrument'
+windowtitle = 'T, S, DO near bottom @ 44.66 N, -124.095 E'  #Title of figure.
+
+partial_url_1 = 'https://ooinet.oceanobservatories.org/api/m2m/12576/sensor/inv/CE01ISSM/MFD37/03-CTDBPC000/telemetered/ctdbp_cdef_dcl_instrument'  #Partial URL (no times) of data request.
 partial_url_2 = 'https://ooinet.oceanobservatories.org/api/m2m/12576/sensor/inv/CE01ISSM/MFD37/03-DOSTAD000/telemetered/dosta_abcdjm_ctdbp_dcl_instrument'  #Partial URL (no times) of data request.
-vartime_1 = 'time'  #The stream name of the time associated with the data you want.
+
+vartime_1 = 'time'  #The OOI stream name of the time associated with the data you want.
 vartime_2 = 'time'
 var1 = 'temp'  #The OOI stream name of one of the variables you want to plot on the y axis.
 var2 = 'practical_salinity'  #The OOI stream name of one of the variables you want to plot on the y axis.
 var3 = 'dissolved_oxygen'   #The OOI stream name of one of the variables you want to plot on the y axis.
-
 
 timename = 'Datetime (UTC)'  #User defined name of the time variable.
 var1name = 'Temperature'  #User defined name of var1.
@@ -42,6 +49,9 @@ var2units = 'PSU'
 var3name = 'Oxygen Concentration'
 var3units = 'umol/kg'
 #--------------------------------------------------#
+
+
+
 class OOI():
     def __init__(self):  #Create empty lists at initialization.
         self.vartime_1 = np.array([],dtype = 'datetime64')
@@ -63,7 +73,7 @@ class OOI():
 
     def request_data(self, user, token):  #Request data using the previously generated URL.
         print('Processing request...')  
-        r_1 = requests.get(self.m2m_url_1,auth = (user,token))    
+        r_1 = requests.get(self.m2m_url_1,auth = (user,token))    #Authorization is the user-defined API username and token.
         data_1 = r_1.json()                                     
         check_1 = data_1['allURLs'][1] + '/status.txt'
         time.sleep(1)
@@ -72,7 +82,7 @@ class OOI():
         check_2 = data_2['allURLs'][1] + '/status.txt'
         for i in range(1800):
             print('Checking request status...{:d}'.format(i),end = '\r')
-            r_1 = requests.get(check_1)
+            r_1 = requests.get(check_1)  #Check to see if the request is complete.
             time.sleep(0.5)
             r_2 = requests.get(check_2)
             if r_1.status_code == requests.codes.ok and r_2.status_code == requests.codes.ok:
@@ -86,12 +96,12 @@ class OOI():
         data_url_1 = data_1['allURLs'][0] 
         multi_urls_1 = requests.get(data_url_1).text  
         nclist_1 = re.findall(r'(ooi/.*?.nc)', multi_urls_1)  
-        for i in nclist_1:   
-            if i.endswith('.nc') == False:  
+        for i in nclist_1:   #Given the available urls.
+            if i.endswith('.nc') == False:  # If it isn't a .nc, get rid of it.
                 nclist_1.remove(i)
         for i in nclist_1:  
             try:
-                float(i[-4]) == True
+                float(i[-4]) == True  #If the digit before the .nc isn't a number (i.e. date value), get ride of it.
             except:
                 nclist_1.remove(i)
 
@@ -109,8 +119,8 @@ class OOI():
         print('Sorting complete.')
         
         thredds_url = 'https://opendap.oceanobservatories.org/thredds/dodsC/' 
-        opendap_url_1 = os.path.join(thredds_url,str(nclist_1[0])) 
-        opendap_url_1 = opendap_url_1 + '#fillmismatch'
+        opendap_url_1 = os.path.join(thredds_url,str(nclist_1[0])) #Append with the opendap url to get data.
+        opendap_url_1 = opendap_url_1 + '#fillmismatch'  #Add this identifier so we don't get any errors.
         self.opendap_url_1 = opendap_url_1
         
         opendap_url_2 = os.path.join(thredds_url,str(nclist_2[0])) 
@@ -118,7 +128,7 @@ class OOI():
         self.opendap_url_2 = opendap_url_2
         print('Data available via OpenDAP URL.')
 
-    def retrieve_data(self,vartime_1,vartime_2,var1,var2,var3,limit):  #Order: Time stream name, var1 stream name, var2 stream name, var3 stream name, rows to keep in arrays.
+    def retrieve_data(self,vartime_1,vartime_2,var1,var2,var3,limit):  #Get the data.
         print('Retrieving data...')
         prev_vartime_1 = self.vartime_1  #Identify arrays for internal processing.
         prev_vartime_2 = self.vartime_2
@@ -144,24 +154,24 @@ class OOI():
         print('Data appended.')
 
         sortidx = vartime_1.argsort()     #Sort the data by time.
-        vartime_1 = vartime_1[sortidx[:]]
-        var1 = var1[sortidx[:]]
+        vartime_1 = vartime_1[sortidx[:]] 
+        var1 = var1[sortidx[:]] #Sort the other data arrays based on the time array index.
         var2 = var2[sortidx[:]]
 
-        sortidx = vartime_2.argsort()
-        vartime_2 = vartime_2[sortidx[:]]
+        sortidx = vartime_2.argsort()  
+        vartime_2 = vartime_2[sortidx[:]] 
         var3 = var3[sortidx[:]]
         print('Data sorted.')
 
-        vartime_1 = np.array(vartime_1)
-        vartime_1 = pd.to_datetime(vartime_1,format='%Y%m%d %H:%M:%S', errors='coerce',utc = True)
+        vartime_1 = np.array(vartime_1)  #Make sure everything is in an array.
+        vartime_1 = pd.to_datetime(vartime_1,format='%Y%m%d %H:%M:%S', errors='coerce',utc = True)  #Pandas is smart enough to know the date of origin.
         vartime_2 = np.array(vartime_2)
         vartime_2 = pd.to_datetime(vartime_2,format='%Y%m%d %H:%M:%S', errors='coerce',utc = True)
         var1 = np.array(var1)
         var2 = np.array(var2)
         var3 = np.array(var3)
 
-        newest = vartime_1[-1]
+        newest = vartime_1[-1]  #Remove data that is outside the limit.
         oldest = vartime_1[0]
         memlim = newest - timedelta(minutes = limit)
         df = pd.DataFrame(vartime_1)
@@ -181,7 +191,7 @@ class OOI():
         df = pd.DataFrame(var3)
         var3 = df.loc[trim]
 
-        vartime_1 = np.array(vartime_1[0]) 
+        vartime_1 = np.array(vartime_1[0]) #Really make sure everything is in an array.
         vartime_2 = np.array(vartime_2[0]) 
         var1 = np.array(var1[0])
         var2 = np.array(var2[0])
@@ -193,7 +203,7 @@ class OOI():
         self.var2 = var2
         self.var3 = var3
         
-    def plot_data(self,interval,timename,var1name,var1units,var2name,var2units,var3name,var3units):  #Order, variable names and units.
+    def plot_data(self,interval,timename,var1name,var1units,var2name,var2units,var3name,var3units):  #Plot the data.
         print('Plotting data...')
         
         ax1.clear()  #Clear the previous plot.
@@ -223,11 +233,12 @@ class OOI():
         ax3.tick_params(labelrotation=0)
         ax3.set_xlabel(timename)
         ax3.set_xlim(left = self.vartime_1[0])
-
+        
+        ctrlfstr = 'Use CTRL + F to enter or exit fullscreen.'
+        textbox = ax1.text(0.01,0.01,ctrlfstr,fontsize=8,transform = plt.gcf().transFigure,color = 'k')
+        
         print('Plot available. Waiting for %d minutes before initiating next request.' %(interval))
         plt.pause(interval*60)
-
-
                  
 def animate(j): 
     print('Setting up request for loop number %d.' % (j))
@@ -236,6 +247,8 @@ def animate(j):
     OOI.retrieve_data(vartime_1,vartime_2,var1,var2,var3,limit)
     OOI.plot_data(interval,timename,var1name,var1units,var2name,var2units,var3name,var3units)
     print('Loop resetting.')
+
+
 
 print('Setting up initial request.')      
 root = tkinter.Tk()  #Create a Tk object to get the screen dimensions.
@@ -249,15 +262,13 @@ fmt = mdates.DateFormatter('%Y-%m-%d %H:%M')  #Define how the dates are displaye
 plt.tight_layout(pad = pad)
 fig.canvas.set_window_title(windowtitle)  #Set the window title.
 fig.suptitle(windowtitle)  #Add a title for the figure.
-ctrlfstr = 'Use CTRL + F to enter or exit fullscreen.'
-textbox = ax1.text(0.01,0.01,ctrlfstr,fontsize=8,transform = plt.gcf().transFigure,color = 'k')
 
 OOI = OOI()
 OOI.create_url(backcast,buffer,partial_url_1,partial_url_2)
 OOI.request_data(user,token)
 OOI.retrieve_data(vartime_1,vartime_2,var1,var2,var3,limit)
-
 OOI.plot_data(interval,timename,var1name,var1units,var2name,var2units,var3name,var3units)
+
 print('Initiating animation loop.')
 ani = animation.FuncAnimation(fig,animate,interval = 1000)
 plt.show(block=False)  #Show the plot, but don't block the script.

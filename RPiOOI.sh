@@ -63,6 +63,8 @@ chmod +x CE02SHBP_BEP_TSDO.py
 sleep 1s
 chmod +x CE09OSPM_MMP_TS.py
 sleep 1s
+chmod +x CE04OSPM_MMP_TS.py
+sleep 1s
 
 echo "Installation complete!"
 echo "Rebooting the system in 30 seconds..."

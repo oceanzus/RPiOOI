@@ -1,11 +1,12 @@
 #! /usr/bin/python3
 
-#This script plots OOI CE09OSPM (McLane Moored Profiler) CTD  data at regular intervals.
-#It is intended to work with a Raspberry Pi, but has also been tested in Python 3 for Windows.
-#This script only makes one request for CTD data.
+
+#Tested in Python 3.7.3 on a Raspberry Pi Model 3B+.
+#Tested in Python 3.7.4 in Windows 10.
+#This script plots OOI CE09OSPM (McLane Moored Profiler) CTD  data at 8 hour intervals.
 #For an example on how to make simultaneous requests for multiple datasets, look at CE01ISSM_MFN_TSDO.py
 
-#Written by iblack with help from spearce, crisien, and cwingard.
+#Created by iblack (blackia@oregonstate.edu) with help from spearce, crisien, and cwingard.
 #Some sections pulled from OOI M2M examples written by Sage and Friedrich Knuth.
 
 
@@ -14,33 +15,40 @@ import numpy as np , pandas as pd, xarray as xr, datetime as dt
 import matplotlib.pyplot as plt , matplotlib.animation as animation , matplotlib.dates as mdates
 from matplotlib.dates import DateFormatter
 from dateutil.tz import *
-from datetime import datetime , timedelta, tzinfo
+from datetime import datetime , timedelta
 from pandas.plotting import register_matplotlib_converters
 register_matplotlib_converters()
+
+
 
 #--------------------------------------------------#
 user = 'OOIAPI-BCJPAYP2KUVXFX'  #OOI API username.
 token = 'D3HV2X0XH1O'   #OOI API token.
-backcast = 60 * 72   #Number of minutes to initially display.
+backcast = 60 * 24 * 7   #Number of minutes to initially display.
 interval = 60 * 8   #Frequency in minutes to request new data.
 buffer = 5     #Number of minutes to add to the interval to account for the time it takes to make the request.
-limit = 60 * 72  #Number of minutes of data to store in memory.
+limit = backcast * 1  #Number of minutes of data to store in memory.
+
 pad = 5  #Padding for plt.tight_layout()
 windowtitle = 'T, S profiles @ 46.852 N, -124.982 E'  #Super title of your figure.
-partial_url = 'https://ooinet.oceanobservatories.org/api/m2m/12576/sensor/inv/CE09OSPM/WFP01/03-CTDPFK000/telemetered/ctdpf_ckl_wfp_instrument'  #Partial URL (no times) of data request.
-vartime = 'time'  #The stream name of the time associated with the data you want.
-var1 = 'ctdpf_ckl_seawater_pressure'  #The stream name of one of the variables you want to plot on the y axis.
-var2 = 'ctdpf_ckl_seawater_temperature'  #The stream name of one of the variables you want to plot on the y axis.
-var3 = 'practical_salinity'   #The stream name of one of the variables you want to plot on the y axis.
 
-timename = 'Datetime (UTC)'  #Name of the time variable.
-var1name = 'Pressure'  #Name of var1.
-var1units = 'dbars'   #Unit of var 1.
+partial_url = 'https://ooinet.oceanobservatories.org/api/m2m/12576/sensor/inv/CE09OSPM/WFP01/03-CTDPFK000/telemetered/ctdpf_ckl_wfp_instrument'  #Partial URL (no times) of data request.
+vartime = 'time'  #The OOI stream name of the time associated with the data you want.
+var1 = 'ctdpf_ckl_seawater_pressure'  #The OOI stream name of one of the variables you want to plot on the y axis.
+var2 = 'ctdpf_ckl_seawater_temperature'  #The OOI stream name of one of the variables you want to plot on the y axis.
+var3 = 'practical_salinity'   #The OOI stream name of one of the variables you want to plot on the y axis.
+
+timename = 'Datetime (UTC)'  #User-defined name of the time variable.
+var1name = 'Pressure'  #User-defined name of var1.
+var1units = 'dbars'   #User defined unit of var 1.
 var2name = 'Temperature'
 var2units = 'degC'
 var3name = 'Salinity'
 var3units = 'PSU'
 #--------------------------------------------------#
+
+
+
 class OOI():
     def __init__(self):  #Create empty lists at initialization.
         self.vartime = np.array([],dtype = 'datetime64')
@@ -56,7 +64,6 @@ class OOI():
         past = past.strftime("%Y-%m-%dT%H:%M:%S.000Z") 
         timespan = "?beginDT=" + past + "&endDT=" + now  
         self.m2m_url = partial_url + timespan  #Craft the complete URL.
-        print(self.m2m_url)                                                                                                                                                                                                                                    
         print('M2M URL obtained.')
 
     def request_data(self, user, token):  #Request data using the previously generated URL.
@@ -161,9 +168,8 @@ class OOI():
         ax1.invert_yaxis()  #Invert the y-axis of the plot so it makes sense.
         ax1.set_title(var2name)  #Title the plot.
         ax1.set_ylabel(var1name + ' (' + var1units+ ') ')  #Give the y axis a label.
-        ax1.set_xlabel(timename)  #Give the x axis a label.
         ax1.xaxis.set_major_formatter(fmt) 
-        ax1.tick_params(labelrotation=0)
+        ax1.tick_params(labelrotation=15)
         ax1.set_xlim(left = self.vartime[0],right=self.vartime[-1])
 
         ax2.clear()
@@ -174,9 +180,11 @@ class OOI():
         ax2.set_ylabel(var1name + ' (' + var1units+ ') ')   #Give the y axis a label.
         ax2.set_xlabel(timename)  #Give the x axis a label.
         ax2.xaxis.set_major_formatter(fmt) 
-        ax2.tick_params(labelrotation=0)
+        ax2.tick_params(labelrotation=15)
         ax2.set_xlim(left = self.vartime[0],right=self.vartime[-1])
-     
+        
+        ctrlfstr = 'Use CTRL + F to enter or exit fullscreen.'
+        textbox = ax1.text(0.01,0.01,ctrlfstr,fontsize=8,transform = plt.gcf().transFigure,color = 'k')
 
         print('Plot available. Waiting for %d minutes before initiating next request.' %(interval))
         plt.pause(interval*60)
@@ -195,24 +203,24 @@ root = tkinter.Tk()  #Create a Tk object to get the screen dimensions.
 width = root.winfo_screenwidth()  #Define the screen width in pixels.
 height = root.winfo_screenheight()  #Define the screen height in pixels
 dpi = 100  #Define the number of pixes per inch.
+root.destroy()  #Remove the Tk object because it is annoying.
+
 fig = plt.figure(figsize=(width/dpi,height/dpi),facecolor = 'gray',edgecolor = 'black')
 ax1,ax2 = fig.subplots(2,1)  #Add subplots
 fmt = mdates.DateFormatter('%Y-%m-%d %H:%M')  #Define how the dates are displayed.
 plt.tight_layout(pad = pad)
 fig.canvas.set_window_title(windowtitle)  #Set the window title.
 fig.suptitle(windowtitle)  #Add a title for the figure.
-ctrlfstr = 'Use CTRL + F to enter or exit fullscreen.'
-textbox = ax1.text(0.01,0.01,ctrlfstr,fontsize=8,transform = plt.gcf().transFigure,color = 'k')
-root.destroy()  #Remove the Tk object because it is annoying.
+
 
 OOI = OOI()
 OOI.create_url(backcast,buffer,partial_url)
 OOI.request_data(user,token)
 OOI.retrieve_data(vartime,var1,var2,var3,limit)
-
 OOI.plot_data(interval,timename,var1name,var1units,var2name,var2units,var3name,var3units)
 print('Initiating animation loop.')
-ani = animation.FuncAnimation(fig,animate,interval = 1000)
+
+ani = animation.FuncAnimation(fig,animate,interval = 1000,blit=True)
 plt.show(block=False)  #Show the plot, but don't block the script.
 
 

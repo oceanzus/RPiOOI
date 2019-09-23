@@ -1,11 +1,12 @@
 #! /usr/bin/python3
 
-#This script plots OOI CP04OSPM (McLane Moored Profiler) CTD  data at regular intervals.
-#It is intended to work with a Raspberry Pi, but has also been tested in Python 3 for Windows.
+#Tested in Python 3.7.3 on a Raspberry Pi Model 3B+.
+#Tested in Python 3.7.4 in Windows 10.
+#This script plots telemetered OOI CP04OSPM (McLane Moored Profiler) CTD  data at regular intervals.
 #It will not work for very large requests that generate multiple OpenDAP URLS or requests that span deployments.
 #For an example on how to make simultaneous requests for multiple datasets, look at CE01ISSM_MFN_TSDO.py
 
-#Created by iblack with help from spearce, crisien, and cwingard.
+#Created by iblack (blackia@oregonstate.edu) with help from spearce, crisien, and cwingard.
 #Some sections pulled from OOI M2M examples written by Friedrich Knuth and Sage.
 
 import os , sys, time , string , math , requests , re , tkinter , matplotlib
@@ -13,9 +14,11 @@ import numpy as np , pandas as pd, xarray as xr, datetime as dt
 import matplotlib.pyplot as plt , matplotlib.animation as animation , matplotlib.dates as mdates
 from matplotlib.dates import DateFormatter
 from dateutil.tz import *
-from datetime import datetime , timedelta, tzinfo
+from datetime import datetime , timedelta
 from pandas.plotting import register_matplotlib_converters
 register_matplotlib_converters()
+
+
 
 #--------------------------------------------------#
 user = 'OOIAPI-BCJPAYP2KUVXFX'  #OOI API username.
@@ -27,6 +30,7 @@ limit = backcast * 1   #Number of minutes of data to store in memory. Also acts 
 
 pad = 5  #Padding for plt.tight_layout()
 windowtitle = 'T, S profiles @ 39.936 N, -70.88 E'  #Super title of your figure.
+
 partial_url = 'https://ooinet.oceanobservatories.org/api/m2m/12576/sensor/inv/CP04OSPM/WFP01/03-CTDPFK000/telemetered/ctdpf_ckl_wfp_instrument'  #Partial URL (no times) of data request.
 vartime = 'time'  #The stream name of the time associated with the data you want.
 var1 = 'ctdpf_ckl_seawater_pressure'  #The stream name of one of the variables you want to plot on the y axis.
@@ -96,7 +100,7 @@ class OOI():
         self.opendap_url = opendap_url
         print('Data available via OpenDAP URL.')
 
-    def retrieve_data(self,vartime,var1,var2,var3,limit):  #Order: Time stream name, var1 stream name, var2 stream name, var3 stream name, rows to keep in arrays.
+    def retrieve_data(self,vartime,var1,var2,var3,limit): #Get the data.
         print('Retrieving data...')
         prev_vartime = self.vartime  #Identify arrays for internal processing.
         prev_var1 = self.var1
@@ -154,7 +158,7 @@ class OOI():
         self.var2 = var2
         self.var3 = var3
         
-    def plot_data(self,interval,timename,var1name,var1units,var2name,var2units,var3name,var3units):  #Order, variable names and units.
+    def plot_data(self,interval,timename,var1name,var1units,var2name,var2units,var3name,var3units): #Plot the data
         print('Plotting data...')
         
         ax1.clear()  #Clear the previous plot.
@@ -177,6 +181,7 @@ class OOI():
         ax2.xaxis.set_major_formatter(fmt) 
         ax2.tick_params(labelrotation=15)
         ax2.set_xlim(left = self.vartime[0],right=self.vartime[-1])
+        
         ctrlfstr = 'Use CTRL + F to enter or exit fullscreen.'
         textbox = ax1.text(0.01,0.01,ctrlfstr,fontsize=8,transform = plt.gcf().transFigure,color = 'k')
 
@@ -211,8 +216,9 @@ OOI.create_url(backcast,buffer,partial_url)
 OOI.request_data(user,token)
 OOI.retrieve_data(vartime,var1,var2,var3,limit)
 OOI.plot_data(interval,timename,var1name,var1units,var2name,var2units,var3name,var3units)
+
 print('Now moving to animation loop.')
-ani = animation.FuncAnimation(fig,animate,interval = 1000)
+ani = animation.FuncAnimation(fig,animate,interval = 1000,blit=True)
 plt.show(block=False)  #Show the plot, but don't block the script.
 
 
