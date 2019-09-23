@@ -25,8 +25,8 @@ register_matplotlib_converters()
 user = 'OOIAPI-BCJPAYP2KUVXFX'  #OOI API username.
 token = 'D3HV2X0XH1O'   #OOI API token.
 
-backcast = 60 * 24   #Number of minutes to initially display.
-interval = 5   #Frequency in minutes to request new data.
+backcast = 60 * 24 * 3   #Number of minutes to initially display.
+interval = 15   #Frequency in minutes to request new data.
 buffer = 5     #Number of minutes to add to the interval to account for the time it takes to make the request.
 limit = backcast * 1  #Number of minutes of data to store in memory.
 
@@ -222,7 +222,6 @@ plt.tight_layout(pad = pad)
 fig.canvas.set_window_title(windowtitle)  #Set the window title.
 fig.suptitle(windowtitle)  #Add a title for the figure.
 
-
 OOI = OOI()
 OOI.create_url(backcast,buffer,partial_url)
 OOI.request_data(user,token)
@@ -230,7 +229,7 @@ OOI.retrieve_data(vartime,var1,var2,var3,limit)
 OOI.plot_data(interval,timename,var1name,var1units,var2name,var2units,var3name,var3units)
 
 print('Initiating animation loop.')
-ani = animation.FuncAnimation(fig,animate,interval = 1000,blit=True)
+ani = animation.FuncAnimation(fig,animate,interval = 1000)
 plt.show(block=False)  #Show the plot, but don't block the script.
 
 

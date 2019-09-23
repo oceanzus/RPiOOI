@@ -3,7 +3,7 @@
 
 #Tested in Python 3.7.3 on a Raspberry Pi Model 3B+.
 #Tested in Python 3.7.4 in Windows 10.
-#This script plots OOI CE09OSPM (McLane Moored Profiler) CTD  data at 8 hour intervals.
+#This script plots OOI CE09OSPM (McLane Moored Profiler) CTD  data at 24 hour intervals.
 #For an example on how to make simultaneous requests for multiple datasets, look at CE01ISSM_MFN_TSDO.py
 
 #Created by iblack (blackia@oregonstate.edu) with help from spearce, crisien, and cwingard.
@@ -25,7 +25,7 @@ register_matplotlib_converters()
 user = 'OOIAPI-BCJPAYP2KUVXFX'  #OOI API username.
 token = 'D3HV2X0XH1O'   #OOI API token.
 backcast = 60 * 24 * 7   #Number of minutes to initially display.
-interval = 60 * 8   #Frequency in minutes to request new data.
+interval = 60 * 24   #Frequency in minutes to request new data.
 buffer = 5     #Number of minutes to add to the interval to account for the time it takes to make the request.
 limit = backcast * 1  #Number of minutes of data to store in memory.
 
@@ -75,6 +75,7 @@ class OOI():
             print('Checking request status...{:d}'.format(i),end = '\r')
             r = requests.get(check)
             if r.status_code == requests.codes.ok:
+                print('\n')
                 print('Request complete.')
                 break
             else:
@@ -149,7 +150,6 @@ class OOI():
         var3 = df.loc[trim]
 
         vartime = np.array(vartime[0]) 
-        vartime = pd.to_datetime(vartime,format='%Y%m%d %H:%M:%S', errors='coerce',utc = True)
         var1 = np.array(var1[0])
         var2 = np.array(var2[0])
         var3 = np.array(var3[0])
@@ -159,12 +159,11 @@ class OOI():
         self.var2 = var2
         self.var3 = var3
         
-    def plot_data(self,interval,timename,var1name,var1units,var2name,var2units,var3name,var3units):  #Order, variable names and units.
+    def plot_data(self,interval,timename,var1name,var1units,var2name,var2units,var3name,var3units): #Plot the data.
         print('Plotting data...')
         
         ax1.clear()  #Clear the previous plot.
         tplot = ax1.scatter(x=self.vartime,y=self.var1,s=1,c=self.var2,cmap='jet')
-        fig.colorbar(tplot,ax=ax1, label = var2units)  #Assign the temperature plot a colorbar.
         ax1.invert_yaxis()  #Invert the y-axis of the plot so it makes sense.
         ax1.set_title(var2name)  #Title the plot.
         ax1.set_ylabel(var1name + ' (' + var1units+ ') ')  #Give the y axis a label.
@@ -174,7 +173,6 @@ class OOI():
 
         ax2.clear()
         splot = ax2.scatter(x=self.vartime,y=self.var1,s=1,c=self.var3,cmap='jet')
-        fig.colorbar(splot,ax=ax2,label = var3units)  #Assign the temperature plot a colorbar.
         ax2.invert_yaxis()  #Invert the y-axis of the plot so it makes sense.
         ax2.set_title(var3name)  #Title the plot.
         ax2.set_ylabel(var1name + ' (' + var1units+ ') ')   #Give the y axis a label.
@@ -186,6 +184,8 @@ class OOI():
         ctrlfstr = 'Use CTRL + F to enter or exit fullscreen.'
         textbox = ax1.text(0.01,0.01,ctrlfstr,fontsize=8,transform = plt.gcf().transFigure,color = 'k')
 
+        fig.colorbar(tplot,cax=cax1,label=var2units)  #Assign the temperature plot a colorbar.
+        fig.colorbar(splot,cax=cax2,label=var3units)  #Assign the temperature plot a colorbar.
         print('Plot available. Waiting for %d minutes before initiating next request.' %(interval))
         plt.pause(interval*60)
 
@@ -206,7 +206,7 @@ dpi = 100  #Define the number of pixes per inch.
 root.destroy()  #Remove the Tk object because it is annoying.
 
 fig = plt.figure(figsize=(width/dpi,height/dpi),facecolor = 'gray',edgecolor = 'black')
-ax1,ax2 = fig.subplots(2,1)  #Add subplots
+[ax1,cax1],[ax2,cax2] = fig.subplots(nrows=2,ncols=2,gridspec_kw={"width_ratios":[50,1]})  #Add subplots
 fmt = mdates.DateFormatter('%Y-%m-%d %H:%M')  #Define how the dates are displayed.
 plt.tight_layout(pad = pad)
 fig.canvas.set_window_title(windowtitle)  #Set the window title.
@@ -220,7 +220,7 @@ OOI.retrieve_data(vartime,var1,var2,var3,limit)
 OOI.plot_data(interval,timename,var1name,var1units,var2name,var2units,var3name,var3units)
 print('Initiating animation loop.')
 
-ani = animation.FuncAnimation(fig,animate,interval = 1000,blit=True)
+ani = animation.FuncAnimation(fig,animate,interval = 1000) #After the plt.pause, restart the animation after 1 second.
 plt.show(block=False)  #Show the plot, but don't block the script.
 
 

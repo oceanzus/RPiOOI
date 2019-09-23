@@ -3,8 +3,8 @@
 #Tested in Python 3.7.3 on a Raspberry Pi Model 3B+.
 #Tested in Python 3.7.4 in Windows 10.
 
-#This script plots OOI CE01ISSM MFN (Multi-Function Node) CTD and oxygen data.
-#It will initially plot the previous 14 days and then will request new data every 8 hours.
+#This script plots OOI CE01ISSM MFN (Multi-Function Node) CTD and oxygen data asynchronously.
+#It will initially plot the previous 7 days and then will request new data every 24 hours.
 
 #Created by iblack (blackia@oregonstate.edu) with help from spearce, crisien, and cwingard.
 #Some sections pulled from OOI M2M examples written by Friedrich Knuth and Sage.
@@ -24,10 +24,10 @@ register_matplotlib_converters()
 user = 'OOIAPI-BCJPAYP2KUVXFX'  #OOI API username.
 token = 'D3HV2X0XH1O'   #OOI API token.
 
-backcast = 60 * 24   #Number of minutes to initially display.
-interval =  60 * 8 #Frequency in minutes to request new data.
+backcast = 60 * 24 * 7   #Number of minutes to initially display.
+interval =  60 * 24 #Frequency in minutes to request new data.
 buffer = 5     #Number of minutes to add to the interval to account for the time it takes to make the request.
-limit = backcast * 1  #Number of minutes of data to store in memory. Should be greater or equal to the backcast time. Effectively becomes the x-axis limit.
+limit = backcast * 7  #Number of minutes of data to store in memory. Should be greater or equal to the backcast time. Effectively becomes the x-axis limit.
 
 pad = 5  #Padding for plt.tight_layout()
 windowtitle = 'T, S, DO near bottom @ 44.66 N, -124.095 E'  #Title of figure.
@@ -90,7 +90,7 @@ class OOI():
                 break
             else:
                 time.sleep(0.5)  
-                #plt.pause(1)  #Using plt.pause instead of time.sleep allows the plots to be interactive while data is being requested, however, this forces the plots to appear before the initial request.
+                #plt.pause(0.5)  #Using plt.pause instead of time.sleep allows the plots to be interactive while data is being requested, however, this forces the plots to appear before the initial request.
 
         print('Sorting through contents...')        
         data_url_1 = data_1['allURLs'][0] 
