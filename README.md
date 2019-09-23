@@ -1,8 +1,8 @@
 # RPiOOI
-This repository provides examples for how to plot and update telemetered and streamed data from OOI platforms.
-These examples do not save data on your local machine, but instead plot data from memory and overwrite it on the next loop.
+This repository provides examples for how to plot near real-time telemetered and streamed data from OOI platforms.
+These examples do not save data on your local machine, but instead plot data from memory and overwrite it on the next animation loop.
 
-These examples were originally written for use on a Raspberry Pi. The idea being that you could display and update near real-time data for viewing or decision-making. They can easily be modified for use on other machines. These scripts are based in Python 3.
+These examples were originally written for use on a Raspberry Pi. The idea being that you could display and update near real-time data for viewing or decision-making. These scripts are based in Python 3 and have been tested on the Raspberry Pi Model 3B+ (in Python 3.7.3) and on a Windows 10 machine (in Python 3.7.4) while using the most recent versions of the libraries.
 
 ## Setting Up The Pi
 There are plenty of examples on how to set up a Raspberry Pi. If you are new to the platform, I recommend starting with NOOBS.
@@ -15,7 +15,7 @@ Don't forget to update your Raspberry Pi if you've started it up for the first t
 ## Cloning The Repository
 First, navigate to your default directory. To automatically download the example scripts to your RPi, issue the following commands in the Terminal.
 
-`cd /home/pi/` 
+`cd /home/pi/`
 
 `git clone https://github.com/IanTBlack/RPiOOI.git`
 
@@ -51,7 +51,7 @@ I also recommend installing xscreensaver and unclutter. With xscreensaver you ca
 
 ## Setting Up Executable Scripts
 
-Issuing the following commands allows you to call the python scripts directly from the Terminal instead of having to run them as a module in Python 3.
+Issuing the following commands allows you to call the Python scripts directly from the Terminal instead of having to run them as a module in Python 3 (but you can do that too if you want).
 
 `cd /home/pi/RPiOOI/`
 
@@ -71,9 +71,10 @@ or
 
 where "script" is CE01ISSM_MFN_TSDO.py, CE02SHSM_BEP_TSDO.py, or CE09OSPM_MMP_TS.py
 
+If you prefer to run the modules via the Python 3.7.3 shell, you can do that too.
 
 ### Tkinter Errors
-If run in the Terminal, each script will throw a "ttk::ThemeChanged" error.
+Each script will throw a "ttk::ThemeChanged" error at the initial run.
 This is related to a Tkinter object that is called and destroyed before the plots appear.
 This is used to get your screen width and height (in pixels), which is then used to generate a figure that is maximized to the size of your screen. This is under the assumption that there are 100 pixels per inch.
 
