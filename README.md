@@ -4,6 +4,10 @@ These examples do not save data on your local machine, but instead plot data fro
 
 These examples were originally intended for use on a Raspberry Pi with the idea being that you could display and update near real-time data for viewing or decision-making. These scripts are based in Python 3 and have been tested on the Raspberry Pi Model 3B+ (in Python 3.7.3) and on a Windows 10 machine (in Python 3.7.4) while using the most recent versions of the libraries.
 
+Note that these scripts have a long startup time and may need some fine tuning. To make edits to each script, you can use any Python 3 editor.
+
+Updates and additional scripts will be made available in the future.
+
 ## Setting Up The Pi
 There are plenty of examples on how to set up a Raspberry Pi. If you are new to the platform, I recommend starting with NOOBS.
 Don't forget to update your Raspberry Pi if you've started it up for the first time. Via Terminal, enter the following commands:
@@ -87,5 +91,3 @@ The frequency that data is telemetered may change through a deployment as operat
 Each script will throw a "ttk::ThemeChanged" error at the initial run.
 This is related to a Tkinter object that is called and destroyed before the plots appear.
 This is used to get your screen width and height (in pixels), which is then used to generate a figure that is maximized to the size of your screen. This is under the assumption that there are 100 pixels per inch.
-
-
