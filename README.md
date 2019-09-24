@@ -2,7 +2,7 @@
 This repository provides examples on how to plot near real-time telemetered and streamed data from OOI platforms.
 These examples do not save data on your local machine, but instead plot data from memory and overwrite it on the next animation loop.
 
-These examples were originally written for use on a Raspberry Pi. The idea being that you could display and update near real-time data for viewing or decision-making. These scripts are based in Python 3 and have been tested on the Raspberry Pi Model 3B+ (in Python 3.7.3) and on a Windows 10 machine (in Python 3.7.4) while using the most recent versions of the libraries.
+These examples were originally intended for use on a Raspberry Pi with the idea being that you could display and update near real-time data for viewing or decision-making. These scripts are based in Python 3 and have been tested on the Raspberry Pi Model 3B+ (in Python 3.7.3) and on a Windows 10 machine (in Python 3.7.4) while using the most recent versions of the libraries.
 
 ## Setting Up The Pi
 There are plenty of examples on how to set up a Raspberry Pi. If you are new to the platform, I recommend starting with NOOBS.
@@ -80,11 +80,12 @@ or
 
 where "script" is CE01ISSM_MFN_TSDO.py, CE02SHSM_BEP_TSDO.py, CE09OSPM_MMP_TS.py, or CP02OSPM_MMP_TS.py
 
+### Issues Getting Data
+The frequency that data is telemetered may change through a deployment as operators adjust to power requirements. To know when exactly moorings telemeter data and when that data is available on OOINet, you will need to contact each respective array. If you request data over a small time span and no new data is available, the script may fail and won't make subsequent requests.
 
 ### Tkinter Errors
 Each script will throw a "ttk::ThemeChanged" error at the initial run.
 This is related to a Tkinter object that is called and destroyed before the plots appear.
 This is used to get your screen width and height (in pixels), which is then used to generate a figure that is maximized to the size of your screen. This is under the assumption that there are 100 pixels per inch.
 
-### Issues Getting Data
-The frequency that data is telemetered may change through a deployment as operators adjust to power requirements. To know when exactly moorings telemeter data and when that data is available on OOINet, you will need to contact each respective array. If you request data over a small time span and no new data is available, the script may fail and won't make subsequent requests.
+
