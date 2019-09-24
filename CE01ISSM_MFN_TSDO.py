@@ -3,7 +3,7 @@
 #Tested in Python 3.7.3 on a Raspberry Pi Model 3B+.
 #Tested in Python 3.7.4 in Windows 10.
 
-#This script plots OOI CE01ISSM MFN (Multi-Function Node) CTD and oxygen data asynchronously.
+#This script plots OOI CE01ISSM MFN (Multi-Function Node) CTD and oxygen data at regular intervals.
 #It will initially plot the previous 7 days and then will request new data every 24 hours.
 
 #Created by iblack (blackia@oregonstate.edu) with help from spearce, crisien, and cwingard.
@@ -27,7 +27,7 @@ token = 'D3HV2X0XH1O'   #OOI API token.
 backcast = 60 * 24 * 7   #Number of minutes to initially display.
 interval =  60 * 24 #Frequency in minutes to request new data.
 buffer = 5     #Number of minutes to add to the interval to account for the time it takes to make the request.
-limit = backcast * 7  #Number of minutes of data to store in memory. Should be greater or equal to the backcast time. Effectively becomes the x-axis limit.
+limit = backcast  #Number of minutes of data to store in memory. Should be greater or equal to the backcast time. Effectively becomes the x-axis limit.
 
 pad = 5  #Padding for plt.tight_layout()
 windowtitle = 'T, S, DO near bottom @ 44.66 N, -124.095 E'  #Title of figure.
@@ -39,7 +39,7 @@ vartime_1 = 'time'  #The OOI stream name of the time associated with the data yo
 vartime_2 = 'time'
 var1 = 'temp'  #The OOI stream name of one of the variables you want to plot on the y axis.
 var2 = 'practical_salinity'  #The OOI stream name of one of the variables you want to plot on the y axis.
-var3 = 'dissolved_oxygen'   #The OOI stream name of one of the variables you want to plot on the y axis.
+var3 = 'dissolved_oxygen'   #The OOI stream name of one of the variables you want to plot on the y axis. This one is associated with partial_url_2.
 
 timename = 'Datetime (UTC)'  #User defined name of the time variable.
 var1name = 'Temperature'  #User defined name of var1.

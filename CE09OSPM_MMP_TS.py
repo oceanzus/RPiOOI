@@ -185,7 +185,7 @@ class OOI():
         textbox = ax1.text(0.01,0.01,ctrlfstr,fontsize=8,transform = plt.gcf().transFigure,color = 'k')
 
         fig.colorbar(tplot,cax=cax1,label=var2units)  #Assign the temperature plot a colorbar.
-        fig.colorbar(splot,cax=cax2,label=var3units)  #Assign the temperature plot a colorbar.
+        fig.colorbar(splot,cax=cax2,label=var3units)
         print('Plot available. Waiting for %d minutes before initiating next request.' %(interval))
         plt.pause(interval*60)
 
